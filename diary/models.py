@@ -18,7 +18,7 @@ class TrainingDay(models.Model):
     appetite = models.IntegerField(validators=[validators.MaxValueValidator(5), validators.MinValueValidator(1)])
     mood = models.IntegerField(validators=[validators.MaxValueValidator(5), validators.MinValueValidator(1)])
     weather = models.TextField(max_length=16)
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, on_delete=models.DO_NOTHING)    # TODO test different on_delete
 
     def __str__(self):
         return self.date.isoformat()
@@ -26,20 +26,20 @@ class TrainingDay(models.Model):
 
 class TrainingSession(models.Model):
     rest = models.BooleanField()
-    day = models.ForeignKey(TrainingDay)
+    day = models.ForeignKey(TrainingDay, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return 'Session at {}'.format(self.day.date)
 
 
 class Exercise(models.Model):
-    type = models.ForeignKey(ExerciseType)
+    type = models.ForeignKey(ExerciseType, on_delete=models.DO_NOTHING)
     name = models.TextField(max_length=256, default='')
     distance_low = models.FloatField(blank=True, default=0.0)
     distance_middle = models.FloatField(blank=True, default=0.0)
     distance_high = models.FloatField(blank=True, default=0.0)
     duration = models.DurationField()
-    session = models.ForeignKey(TrainingSession)
+    session = models.ForeignKey(TrainingSession, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return self.name
