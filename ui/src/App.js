@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { TrainingDayList } from './TrainingDay';
+import { withStyles } from '@material-ui/core/styles';
 
 import './App.css';
 
@@ -11,5 +12,4 @@ class App extends Component {
   }
 }
 
-export default App;
-
+export default withStyles()(App);
