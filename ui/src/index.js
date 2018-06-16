@@ -12,8 +12,11 @@ import React from 'react';
 import { render } from 'react-dom';
 // import App from './App';
 //import registerServiceWorker from './registerServiceWorker';
+import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import MomentUtils from 'material-ui-pickers/utils/moment-utils';
 import { TrainingDay } from './TrainingDay';
-import { TrainingDayForm } from './add/forms'
+import TrainingDayForm from './add/forms'
 import NavBar from './Navigation';
 import {
   BrowserRouter as Router,
@@ -24,13 +27,16 @@ import {
 const rootElement = document.querySelector('#root');
 if (rootElement) {
   render((
-    <Router>
-      <div>
-        <NavBar />
-        <Route path="/day/:id" component={TrainingDay} />
-        <Route path="/add" component={TrainingDayForm} />
-      </div>
-    </Router>
+    <MuiPickersUtilsProvider utils={MomentUtils} >
+      <CssBaseline />
+      <Router>
+        <div>
+          <NavBar />
+          <Route path="/day/:id" component={TrainingDay} />
+          <Route path="/add" component={TrainingDayForm} />
+        </div>
+      </Router>
+    </MuiPickersUtilsProvider>
   ), rootElement);
 }
 //registerServiceWorker();
