@@ -8,13 +8,17 @@ import moment from 'moment'
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
+import Badge from '@material-ui/core/Badge';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import { getTrainingDaysData } from './utils/Api'
 
+import { Link } from 'react-router-dom'
 import orderBy from 'lodash/orderBy'
 
 const styles = theme => ({
@@ -27,32 +31,44 @@ const styles = theme => ({
     paddingLeft: 15,
     paddingRight: 15,
   },
+  link: {
+    textDecoration: 'none'
+  }
 });
 
-// class TrainingDay extends Component {
-//   constructor() {
-//     super();
-//     this.state = { day: {} };
-//   }
-//
-//   componentDidMount() {
-//     fetch('/api/days/' + this.props.match.params.id)
-//     .then(data => data.json())
-//     .then(day => this.setState({ day }));
-//   }
-//
-//   render() {
-//     return (
-//       <div className="container">
-//         Comments: {this.state.day.comments} <br />
-//         Weather: {this.state.day.weather}
-//         <div>
-//           <SessionList id={this.props.match.params.id}/>
-//         </div>
-//       </div>
-//   )
-// }
-// }
+const smiles = [
+  {title: 'Самочувствие', value: 'health'},
+  {title: 'Сон', value: 'sleep'},
+  {title: 'Аппетит', value: 'appetite'},
+  {title: 'Настроение', value: 'mood'},
+]
+
+class Smile extends Component {
+  render() {
+    let smile_icon = null
+    switch (this.props.value) {
+      case 1:
+        smile_icon = 'mood_bad'
+        break;
+      case 2:
+        smile_icon = 'sentiment_very_dissatisfied'
+        break;
+      case 3:
+        smile_icon = 'sentiment_dissatisfied'
+        break;
+      case 4:
+        smile_icon = 'sentiment_satisfied_alt'
+        break;
+      case 5:
+        smile_icon = 'mood'
+        break;
+      default:
+        break;
+      }
+
+    return (<Tooltip title={this.props.title}><IconButton><Icon>{smile_icon}</Icon></IconButton></Tooltip>)
+  }
+}
 
 class TrainingDayList extends Component {
   constructor() {
@@ -89,10 +105,6 @@ class TrainingDayList extends Component {
     this.getTrainingDays()
   }
 
-  goToDay(id) {
-    window.location = '/day/' + id;
-  }
-
   render() {
     const { classes } = this.props;
 
@@ -103,16 +115,26 @@ class TrainingDayList extends Component {
             <Paper className={classes.paper}>
               <List component="nav">
                 {this.state.days.map(day => (
-                  <ListItem button key={day.id}>
-                    <ListItemText primary={moment(day.date).format('YYYY-MM-DD')} />
+                  <Link to={"/day/" + day.id} className={classes.link} key={day.id}>
+                    <ListItem button>
+                      {('sessions' in day) && day.sessions.length !== 0 ?
+                        <ListItemIcon>
+                          <Badge className={classes.margin}
+                                 badgeContent={(day.sessions.length === 1) ? '' : day.sessions.length}
+                                 color="default">
+                            {day.sessions[0].rest ? <Icon>beach_access</Icon> : <Icon>fitness_center</Icon>}
+                          </Badge>
+                        </ListItemIcon> : null
+                      }
+                      <ListItemText primary={moment(day.date).format('YYYY-MM-DD')} />
                       <ListItemSecondaryAction>
-                        {day.sessions.map(session => (
-                            <IconButton key={session.id}>
-                              {session.rest ? <Icon>beach_access</Icon> : <Icon>fitness_center</Icon>}
-                            </IconButton>
-                          ))}
+                        {smiles.map((smile, index) => (
+                          <Smile key={index} value={day[smile.value]} title={smile.title}></Smile>
+                        ))}
+
                       </ListItemSecondaryAction>
-                  </ListItem>
+                    </ListItem>
+                  </Link>
                 ))}
               </List>
             </Paper>
@@ -123,4 +145,4 @@ class TrainingDayList extends Component {
   }
 }
 
-export default withStyles(styles)(TrainingDayList);
+export default withStyles(styles)(TrainingDayList, Smile);

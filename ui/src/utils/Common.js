@@ -1,4 +1,4 @@
-export { GetCSRF, isLoggedIn }
+export { GetCSRF }
 
 function ReadCookie() {
     let allcookies  =  document.cookie.replace(/\s/g, '');

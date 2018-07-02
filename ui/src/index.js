@@ -16,6 +16,7 @@ import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsPr
 import CssBaseline from '@material-ui/core/CssBaseline';
 import MomentUtils from 'material-ui-pickers/utils/moment-utils';
 import TrainingDayList from './TrainingDay';
+import TrainingDay from './Day';
 import TrainingDayForm from './add/forms'
 import NavBar from './Navigation';
 import {
@@ -32,9 +33,9 @@ if (rootElement) {
       <Router>
         <div>
           <NavBar />
-          {/*<Route path="/day/:id" component={TrainingDay} />*/}
-          <Route path="/" component={TrainingDayList} />
-          <Route path="/add" component={TrainingDayForm} />
+          <Route exact path="/" component={TrainingDayList} />
+          <Route exact path="/add" component={TrainingDayForm} />
+          <Route exact path="/day/:id" component={TrainingDay} />
         </div>
       </Router>
     </MuiPickersUtilsProvider>
