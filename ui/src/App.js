@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TrainingDayList } from './TrainingDay';
+import TrainingDayList from './TrainingDay';
 import { withStyles } from '@material-ui/core/styles';
 
 import './App.css';
@@ -7,7 +7,7 @@ import './App.css';
 class App extends Component {
   render() {
     return (
-        <TrainingDayList />
+      <TrainingDayList />
     );
   }
 }
