@@ -4,7 +4,12 @@ from django.core import validators
 
 
 class ExerciseType(models.Model):
+    UNIT_CHOICES = (
+        ('km', 'Километры'),
+        ('m', 'Минуты'),
+    )
     name = models.TextField(max_length=128, unique=True)
+    unit = models.CharField(max_length=4, choices=UNIT_CHOICES, default='km')
 
     def __str__(self):
         return self.name
@@ -35,10 +40,8 @@ class TrainingSession(models.Model):
 class Exercise(models.Model):
     type = models.ForeignKey(ExerciseType, on_delete=models.DO_NOTHING)
     name = models.TextField(max_length=256, default='')
-    distance_low = models.FloatField(blank=True, default=0.0)
-    distance_middle = models.FloatField(blank=True, default=0.0)
-    distance_high = models.FloatField(blank=True, default=0.0)
-    duration = models.DurationField()
+    distance = models.FloatField(blank=True, default=0.0)
+    duration = models.DurationField(blank=True, default=0.0)
     session = models.ForeignKey(TrainingSession, on_delete=models.DO_NOTHING)
 
     def __str__(self):

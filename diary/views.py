@@ -8,6 +8,9 @@ from diary.serializers import TrainingSessionSerializer
 from diary.serializers import ExerciseSerializer
 from diary.serializers import ExerciseTypeSerializer
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.viewsets import ViewSet
+from rest_framework.response import Response
+from datetime import timedelta
 
 
 class TrainingDayViewSet(viewsets.ModelViewSet):
@@ -35,3 +38,34 @@ class ExerciseTypeViewSet(viewsets.ModelViewSet):
     queryset = ExerciseType.objects.all()
     serializer_class = ExerciseTypeSerializer
     filter_backends = (DjangoFilterBackend,)
+
+
+class MonthReport(ViewSet):
+
+    def list(self, request, format=None):
+        days = TrainingDay.objects.all()
+        sessions = []
+        for day in days:
+            sessions += day.trainingsession_set.all()
+        output = {
+            "Тренировочных дней": len(days),
+            "Тренировок": len(sessions),
+        }
+        exercises = []
+        for session in sessions:
+            exercises += session.exercise_set.all()
+
+        for exercise_type in ExerciseType.objects.all():
+            exercises_of_this_type = filter(lambda e: exercise_type.id == e.type.id, exercises)
+            if exercise_type.unit == 'km':
+                whole_sum = 0
+                for exercise in exercises_of_this_type:
+                    whole_sum += exercise.distance
+                output[exercise_type.name] = whole_sum
+            else:
+                whole_sum = timedelta(hours=0)
+                for exercise in exercises_of_this_type:
+                    whole_sum += exercise.duration
+                output[exercise_type.name] = whole_sum.total_seconds() / 3600
+
+        return Response(output)
