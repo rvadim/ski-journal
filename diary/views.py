@@ -43,14 +43,21 @@ class ExerciseTypeViewSet(viewsets.ModelViewSet):
 class MonthReport(ViewSet):
 
     def list(self, request, format=None):
+        # TODO:
+        # * Всего Б.Х.И
+        # * Всего бега
+        # * Всего роллеров
+        # * Всего лыж
+        # * Всего ОФП
+        # * Всего тренировочных часов
         days = TrainingDay.objects.all()
         sessions = []
         for day in days:
             sessions += day.trainingsession_set.all()
-        output = {
-            "Тренировочных дней": len(days),
-            "Тренировок": len(sessions),
-        }
+        output = [
+            {'name': 'Тренировочные дни', 'value': len(days), 'unit': 'Days', 'weight': 0},
+            {'name': 'Тренировки', 'value': len(sessions), 'unit': 'Days', 'weight': 1},
+        ]
         exercises = []
         for session in sessions:
             exercises += session.exercise_set.all()
@@ -61,11 +68,14 @@ class MonthReport(ViewSet):
                 whole_sum = 0
                 for exercise in exercises_of_this_type:
                     whole_sum += exercise.distance
-                output[exercise_type.name] = whole_sum
+                output.append({'name': exercise_type.name, 'value': whole_sum, 'unit': 'Kilimeters'})
             else:
                 whole_sum = timedelta(hours=0)
                 for exercise in exercises_of_this_type:
                     whole_sum += exercise.duration
-                output[exercise_type.name] = whole_sum.total_seconds() / 3600
+                output.append({'name': exercise_type.name,
+                               'value': whole_sum.total_seconds(),
+                               'unit': 'Seconds',
+                               'weight': exercise_type.weight})
 
         return Response(output)

@@ -21,7 +21,9 @@ class ExerciseAdmin(admin.ModelAdmin):
 
 
 class ExerciseTypeAdmin(admin.ModelAdmin):
-    pass
+    ordering = ('weight',)
+    list_display = ('id', 'name', 'unit', 'weight')
+    list_editable = ('weight', 'unit')
 
 
 admin.site.register(TrainingDay, TrainingDayAdmin)

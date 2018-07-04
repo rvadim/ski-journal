@@ -10,6 +10,7 @@ class ExerciseType(models.Model):
     )
     name = models.TextField(max_length=128, unique=True)
     unit = models.CharField(max_length=4, choices=UNIT_CHOICES, default='km')
+    weight = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
