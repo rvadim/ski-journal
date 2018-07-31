@@ -61,12 +61,36 @@ class TrainingDayForm extends Component {
       {icon: 'mood', value: 5},
     ],
     open: false,
-    rest: null
+    rest: null,
+    day: {},
+    session: null,
+    data: [],
+  }
+
+  createSession(day) {
+    let body = {
+      day: day,
+      rest: this.state.rest === 1 ? true : false,
+    }
+    doRequest('http://localhost:8000/api/sessions', GetCSRF(), body).then((response) => {
+      if (response.ok) {
+        response.json().then(session => {
+          this.setState({ session: session.id })
+        });
+        window.location.href = 'http://localhost:3000/'
+      }
+    }).catch((error) =>
+      console.log(error)
+    )
   }
 
   createTrainingDay(body) {
-    doRequest('http://localhost:8000/api/days/', GetCSRF(), body).then((response) => {
-      console.log(response.status)
+    doRequest('http://localhost:8000/api/days', GetCSRF(), body).then((response) => {
+      if (response.ok) {
+        response.json().then(day => {
+          this.createSession(day.id)
+        });
+      }
     }).catch((error) =>
       console.log(error)
     )
@@ -115,14 +139,6 @@ class TrainingDayForm extends Component {
     this.createTrainingDay(body)
   }
 
-  // renderSmile(smile, type) {
-  //   return (
-  //     <IconButton key={smile.value}>
-  //       <Icon onClick={this.handleSmile.bind(this, smile.value, type)}>{ smile.icon }</Icon>
-  //     </IconButton>
-  //   )
-  // }
-
   renderSmile(smile, type) {
     return (
       <FormControlLabel key={smile.value} required
@@ -138,6 +154,10 @@ class TrainingDayForm extends Component {
         }
       />
     )
+  }
+
+  handleData = (value) => {
+    this.setState({ data: value });
   }
 
   render() {
@@ -233,32 +253,9 @@ class TrainingDayForm extends Component {
                       }) }
                     </div>
                 </FormControl>
-
-
             </Paper>
           </Grid>
-
-          {/*
-            <Grid item sx={6} >
-              <Button variant="contained" size="small">
-                <Icon className={classes.myicon}>library_add</Icon>
-                Добавить тренировку
-              </Button>
-              <Paper className={classes.paper}>
-                <FormControl className={classes.myform} fullWidth>
-                  <FormLabel>Имя</FormLabel>
-                  <TextField
-                    value={this.state.comment}
-                    multiline={true}
-                    rows={2}
-                    onChange={this.handleChange('comment')}
-                  />
-                </FormControl>
-                <SimpleSelect />
-              </Paper>
-            </Grid>
-            */}
-            <ExerciseForm />
+          <ExerciseForm session={this.state.session} onChange={this.handleData}/>
 
 
         </Grid>

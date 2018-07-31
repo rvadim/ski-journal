@@ -9,6 +9,8 @@ import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import Select from '@material-ui/core/Select';
 
+import { getExerciseTypesData } from '../utils/Api'
+
 const styles = theme => ({
   root: {
     display: 'flex',
@@ -17,13 +19,29 @@ const styles = theme => ({
 });
 
 class SimpleSelect extends React.Component {
-  state = {
-    age: '',
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      types: [],
+      selectedType: {},
+    }
+  }
+
+  getExerciseTypes() {
+    getExerciseTypesData().then((types) => {
+      this.setState({ types })
+    })
+  }
+
+  handleChange = (e) => {
+    this.props.onChange(e.target.value)
+    this.setState({ selectedType: e.target.value })
   };
 
-  handleChange = event => {
-    this.setState({ [event.target.name]: event.target.value });
-  };
+  componentDidMount() {
+    this.getExerciseTypes()
+  }
 
   render() {
     const { classes } = this.props;
@@ -32,19 +50,13 @@ class SimpleSelect extends React.Component {
       <form className={classes.root} autoComplete="off">
         <FormControl>
           <FormLabel>Упражнение</FormLabel>
-          <Select
-            value={this.state.age}
-            onChange={this.handleChange}
-            inputProps={{
-              name: 'age',
-            }}
-          >
+          <Select value={this.props.selectedType} onChange={this.handleChange} autoWidth>
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            <MenuItem value={10}>Ten</MenuItem>
-            <MenuItem value={20}>Twenty</MenuItem>
-            <MenuItem value={30}>Thirty</MenuItem>
+            {this.state.types.map(type => (
+              <MenuItem key={type.id} value={type} name={type.name}>{type.name}</MenuItem>
+            ))}
           </Select>
         </FormControl>
       </form>

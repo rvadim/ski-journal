@@ -16,9 +16,13 @@ import Icon from '@material-ui/core/Icon';
 import Badge from '@material-ui/core/Badge';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import { getTrainingDaysData } from './utils/Api'
+import Button from '@material-ui/core/Button';
+import DeleteIcon from '@material-ui/icons/Delete';
 
-import { Link } from 'react-router-dom'
+import { getTrainingDaysData, getSessionsByDay, deleteRequest } from './utils/Api'
+import { GetCSRF } from './utils/Common'
+
+// import { Link } from 'react-router-dom'
 import orderBy from 'lodash/orderBy'
 
 const styles = theme => ({
@@ -70,6 +74,44 @@ class Smile extends Component {
   }
 }
 
+class SmileIcons extends Component {
+  handleClick = id => () => {
+    window.location.href = `http://localhost:3000/day/${ id }`
+  }
+
+  handleDelete = id => () => {
+    console.log(id)
+    deleteRequest(`http://localhost:8000/api/days/${ id }`, GetCSRF()).then((response) => {
+      console.log(response.status)
+    }).catch((error) => {
+      console.log(error)
+    })
+  }
+
+  render() {
+    return (
+      <ListItem button key={this.props.day.id } onClick={this.handleClick(this.props.day.id)}>
+        {('sessions' in this.props.day) && this.props.day.sessions.length !== 0 ?
+          <ListItemIcon>
+            <Badge className={this.props.styles.margin}
+                   badgeContent={(this.props.day.sessions.length === 1) ? '' : this.props.day.sessions.length}
+                   color="default">
+              {this.props.day.sessions[0].rest ? <Icon>beach_access</Icon> : <Icon>fitness_center</Icon>}
+            </Badge>
+          </ListItemIcon> : null
+        }
+        <ListItemText primary={moment(this.props.day.date).format('YYYY-MM-DD')} />
+        <ListItemSecondaryAction>
+          {smiles.map((smile, index) => (
+            <Smile key={index} value={this.props.day[smile.value]} title={smile.title}></Smile>
+          ))}
+          <IconButton color="secondary"><DeleteIcon onClick={this.handleDelete(this.props.day.id)} /></IconButton>
+        </ListItemSecondaryAction>
+      </ListItem>
+    )
+  }
+}
+
 class TrainingDayList extends Component {
   constructor() {
     super();
@@ -78,16 +120,11 @@ class TrainingDayList extends Component {
     };
   }
 
-  getSessionsByDay(day_id) {
-    return fetch('http://localhost:8000/api/sessions/?day=' + day_id)
-    .then(response => response.json())
-  }
-
   getTrainingDays() {
     getTrainingDaysData().then((days) => {
       let promises = [];
       days.forEach(function(item) {
-        let promise = this.getSessionsByDay(item.id).then((sessions) => {
+        let promise = getSessionsByDay(item.id).then((sessions) => {
           item['sessions'] = sessions
         })
         promises.push(promise)
@@ -115,26 +152,7 @@ class TrainingDayList extends Component {
             <Paper className={classes.paper}>
               <List component="nav">
                 {this.state.days.map(day => (
-                  <Link to={"/day/" + day.id} className={classes.link} key={day.id}>
-                    <ListItem button>
-                      {('sessions' in day) && day.sessions.length !== 0 ?
-                        <ListItemIcon>
-                          <Badge className={classes.margin}
-                                 badgeContent={(day.sessions.length === 1) ? '' : day.sessions.length}
-                                 color="default">
-                            {day.sessions[0].rest ? <Icon>beach_access</Icon> : <Icon>fitness_center</Icon>}
-                          </Badge>
-                        </ListItemIcon> : null
-                      }
-                      <ListItemText primary={moment(day.date).format('YYYY-MM-DD')} />
-                      <ListItemSecondaryAction>
-                        {smiles.map((smile, index) => (
-                          <Smile key={index} value={day[smile.value]} title={smile.title}></Smile>
-                        ))}
-
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  </Link>
+                  <SmileIcons styles={classes} day={day} key={day.id} />
                 ))}
               </List>
             </Paper>

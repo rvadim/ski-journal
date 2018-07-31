@@ -20,7 +20,7 @@ class TrainingSessionSerializer(serializers.ModelSerializer):
 class ExerciseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exercise
-        fields = ('id', 'name', 'type', 'distance_low', 'distance_middle', 'distance_high', 'duration', 'session',)
+        fields = ('id', 'name', 'type', 'distance', 'duration', 'session',)
 
 
 class ExerciseTypeSerializer(serializers.ModelSerializer):
