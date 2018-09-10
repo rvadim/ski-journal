@@ -4,8 +4,9 @@ from diary.models import TrainingDay
 from diary.models import TrainingSession
 from diary.models import Exercise
 from diary.models import ExerciseType
-
-# from guardian.admin import GuardedModelAdmin
+from diary.models import TrainingPlan
+from diary.models import MonthPlan
+from diary.models import ExercisePlan
 
 
 class TrainingDayAdmin(admin.ModelAdmin):
@@ -26,7 +27,27 @@ class ExerciseTypeAdmin(admin.ModelAdmin):
     list_editable = ('weight', 'unit')
 
 
+class TrainingPlanAdmin(admin.ModelAdmin):
+    pass
+
+
+class MonthPlanAdmin(admin.ModelAdmin):
+    pass
+
+
+class ExercisePlanAdmin(admin.ModelAdmin):
+    search_fields = (
+        'month_plan__plan__name',
+    )
+    list_display = ('month_plan', 'type', 'distance', 'duration')
+    list_editable = ('type', 'distance', 'duration')
+
+
 admin.site.register(TrainingDay, TrainingDayAdmin)
 admin.site.register(TrainingSession, TrainingSessionAdmin)
 admin.site.register(Exercise, ExerciseAdmin)
 admin.site.register(ExerciseType, ExerciseTypeAdmin)
+
+admin.site.register(TrainingPlan, TrainingPlanAdmin)
+admin.site.register(MonthPlan, MonthPlanAdmin)
+admin.site.register(ExercisePlan, ExercisePlanAdmin)

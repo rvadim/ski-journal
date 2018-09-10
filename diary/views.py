@@ -7,37 +7,37 @@ from diary.serializers import TrainingDaySerializer
 from diary.serializers import TrainingSessionSerializer
 from diary.serializers import ExerciseSerializer
 from diary.serializers import ExerciseTypeSerializer
-from django_filters.rest_framework import DjangoFilterBackend
+# from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
+from rest_framework.permissions import DjangoObjectPermissions
+from rest_framework.permissions import DjangoModelPermissions
 from datetime import timedelta
 
 
 class TrainingDayViewSet(viewsets.ModelViewSet):
     queryset = TrainingDay.objects.all()
     serializer_class = TrainingDaySerializer
-    filter_backends = (DjangoFilterBackend,)
     filter_fields = ('id', 'owner')
+    permission_classes = (DjangoObjectPermissions,)
 
 
 class TrainingSessionViewSet(viewsets.ModelViewSet):
     queryset = TrainingSession.objects.all()
     serializer_class = TrainingSessionSerializer
-    filter_backends = (DjangoFilterBackend,)
     filter_fields = ('id', 'day', 'rest')
 
 
 class ExerciseViewSet(viewsets.ModelViewSet):
     queryset = Exercise.objects.all()
     serializer_class = ExerciseSerializer
-    filter_backends = (DjangoFilterBackend,)
     filter_fields = ('session', )
 
 
 class ExerciseTypeViewSet(viewsets.ModelViewSet):
     queryset = ExerciseType.objects.all()
     serializer_class = ExerciseTypeSerializer
-    filter_backends = (DjangoFilterBackend,)
+    permission_classes = (DjangoModelPermissions, )
 
 
 class MonthReport(ViewSet):
@@ -55,8 +55,9 @@ class MonthReport(ViewSet):
         for day in days:
             sessions += day.trainingsession_set.all()
         output = [
+            {'user_id': request.user.id},
             {'name': 'Тренировочные дни', 'value': len(days), 'unit': 'Days', 'weight': 0},
-            {'name': 'Тренировки', 'value': len(sessions), 'unit': 'Days', 'weight': 1},
+            {'name': 'Тренировки', 'value': len(sessions), 'unit': '', 'weight': 1},
         ]
         exercises = []
         for session in sessions:
@@ -68,7 +69,10 @@ class MonthReport(ViewSet):
                 whole_sum = 0
                 for exercise in exercises_of_this_type:
                     whole_sum += exercise.distance
-                output.append({'name': exercise_type.name, 'value': whole_sum, 'unit': 'Kilimeters'})
+                output.append({'name': exercise_type.name,
+                               'value': whole_sum,
+                               'unit': 'Kilometers',
+                               'weight': exercise_type.weight})
             else:
                 whole_sum = timedelta(hours=0)
                 for exercise in exercises_of_this_type:
